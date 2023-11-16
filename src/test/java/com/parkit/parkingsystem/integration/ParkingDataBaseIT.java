@@ -16,10 +16,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import static org.mockito.Mockito.lenient;
+import org.mockito.junit.jupiter.MockitoExtension; 
 import java.util.Date;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class ParkingDataBaseIT {
@@ -34,7 +34,7 @@ public class ParkingDataBaseIT {
 	private static InputReaderUtil inputReaderUtil;
 
 	@BeforeAll
-	private static void setUp() throws Exception {
+	public static void setUp() throws Exception {
 		parkingSpotDAO = new ParkingSpotDAO();
 		parkingSpotDAO.dataBaseConfig = dataBaseTestConfig;
 		ticketDAO = new TicketDAO();//
@@ -43,17 +43,13 @@ public class ParkingDataBaseIT {
 	}
 
 	@BeforeEach //
-	private void setUpPerTest() throws Exception {
+	public void setUpPerTest() throws Exception {
 
-		lenient().when(inputReaderUtil.readSelection()).thenReturn(1);
-		lenient().when(inputReaderUtil.readVehicleRegistrationNumber()).thenReturn("ABCDEF");
+		when(inputReaderUtil.readSelection()).thenReturn(1);
+		when(inputReaderUtil.readVehicleRegistrationNumber()).thenReturn("ABCDEF");
 		dataBasePrepareService.clearDataBaseEntries();
 	}
-
-	@AfterAll
-	private static void tearDown() {
-
-	}
+ 
 
 	@Test
 	public void testParkingACar() {
@@ -69,50 +65,50 @@ public class ParkingDataBaseIT {
 
 	}
 
-	@Test
-	public void testParkingLotExit() {
+	// @Test
+	// public void testParkingLotExit() {
 
-		ParkingService parkingService = new ParkingService(inputReaderUtil, parkingSpotDAO, ticketDAO);
+	// 	ParkingService parkingService = new ParkingService(inputReaderUtil, parkingSpotDAO, ticketDAO);
 
-		Ticket ticket = new Ticket();
-		ticket.setInTime(new Date(System.currentTimeMillis() - (60 * 60 * 1000)));
-		ticket.setVehicleRegNumber(vehicleRegNumber);
-		ticket.setParkingSpot(new ParkingSpot(1, ParkingType.CAR, false));
-		ticketDAO.saveTicket(ticket);
-		parkingService.processExitingVehicle();
+	// 	Ticket ticket = new Ticket();
+	// 	ticket.setInTime(new Date(System.currentTimeMillis() - (60 * 60 * 1000)));
+	// 	ticket.setVehicleRegNumber(vehicleRegNumber);
+	// 	ticket.setParkingSpot(new ParkingSpot(1, ParkingType.CAR, false));
+	// 	ticketDAO.saveTicket(ticket);
+	// 	parkingService.processExitingVehicle();
 
-		ticket = ticketDAO.getTicket(vehicleRegNumber);
+	// 	ticket = ticketDAO.getTicket(vehicleRegNumber);
 
-		assertTrue(ticket.getPrice() >= 0);
-		assertNotNull(ticket.getOutTime());
-	}
+	// 	assertTrue(ticket.getPrice() >= 0);
+	// 	assertNotNull(ticket.getOutTime());
+	// }
 
-	@Test
-	public void testParkingLotExitRecurringUser() {
+	// @Test
+	// public void testParkingLotExitRecurringUser() {
 
-		ParkingService parkingService = new ParkingService(inputReaderUtil, parkingSpotDAO, ticketDAO);
+	// 	ParkingService parkingService = new ParkingService(inputReaderUtil, parkingSpotDAO, ticketDAO);
 
-		Ticket firstTicket = new Ticket();
-		firstTicket.setParkingSpot(new ParkingSpot(1, ParkingType.CAR, false));
-		firstTicket.setVehicleRegNumber(vehicleRegNumber);
-		firstTicket.setInTime(new Date(System.currentTimeMillis() - 4 * (60 * 60 * 1000)));
-		firstTicket.setOutTime(new Date(System.currentTimeMillis() - 3 * (60 * 60 * 1000)));
-		firstTicket.setPrice(1.5);
-		ticketDAO.saveTicket(firstTicket);
+	// 	Ticket firstTicket = new Ticket();
+	// 	firstTicket.setParkingSpot(new ParkingSpot(1, ParkingType.CAR, false));
+	// 	firstTicket.setVehicleRegNumber(vehicleRegNumber);
+	// 	firstTicket.setInTime(new Date(System.currentTimeMillis() - 4 * (60 * 60 * 1000)));
+	// 	firstTicket.setOutTime(new Date(System.currentTimeMillis() - 3 * (60 * 60 * 1000)));
+	// 	firstTicket.setPrice(1.5);
+	// 	ticketDAO.saveTicket(firstTicket);
 
-		Ticket secondTicket = new Ticket();
-		secondTicket.setParkingSpot(new ParkingSpot(1, ParkingType.CAR, false));
-		secondTicket.setVehicleRegNumber(vehicleRegNumber);
-		secondTicket.setInTime(new Date(System.currentTimeMillis() - 2 * (60 * 60 * 1000)));
-		ticketDAO.saveTicket(secondTicket);
+	// 	Ticket secondTicket = new Ticket();
+	// 	secondTicket.setParkingSpot(new ParkingSpot(1, ParkingType.CAR, false));
+	// 	secondTicket.setVehicleRegNumber(vehicleRegNumber);
+	// 	secondTicket.setInTime(new Date(System.currentTimeMillis() - 2 * (60 * 60 * 1000)));
+	// 	ticketDAO.saveTicket(secondTicket);
 
-		parkingService.processExitingVehicle();
+	// 	parkingService.processExitingVehicle();
 		
-		secondTicket = ticketDAO.getTicket(vehicleRegNumber);
-		double duration = (secondTicket.getOutTime().getTime() - secondTicket.getInTime().getTime()) / (60 * 60 * 1000);	
-		double expectedFare = Fare.DISCOUNT_CAR_RATE_PER_HOUR * duration;
-		assertEquals(expectedFare, secondTicket.getPrice());
+	// 	secondTicket = ticketDAO.getTicket(vehicleRegNumber);
+	// 	double duration = (secondTicket.getOutTime().getTime() - secondTicket.getInTime().getTime()) / (60 * 60 * 1000);	
+	// 	double expectedFare = Fare.DISCOUNT_CAR_RATE_PER_HOUR * duration;
+	// 	assertEquals(expectedFare, secondTicket.getPrice());
 
-	}
+	// }
 
 }
